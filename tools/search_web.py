@@ -353,6 +353,13 @@ class bing_loader:
 
 ddg_searchType = "web"
 
+# DuckDuckGo 直连不可达，requests 统一走本地代理 7897（Clash/mihomo）
+PROXIES = {
+    "http": "http://127.0.0.1:7897",
+    "https": "http://127.0.0.1:7897",
+}
+
+
 def search_duckduckgo(keywords, paper_num=1):
     if paper_num == "":
         paper_num = 1
@@ -374,13 +381,14 @@ def search_duckduckgo(keywords, paper_num=1):
         else:
             params["ia"] = "web"
 
-        response = requests.get(base_url, params=params, timeout=10)
+        response = requests.get(base_url, params=params, proxies=PROXIES, timeout=10)
         print("Status code:", response.status_code)
         print("Response body:", response.text)
 
         data = response.json()
         all_content = ""
-        if response.status_code == 200:
+        # DDG 的 Instant Answer API 对很多查询返回 202（含有效结果），仅 200 会误判为失败
+        if response.status_code in (200, 202):
             if "RelatedTopics" in data:
                 for item in data["RelatedTopics"]:
                     if "Text" in item and "FirstURL" in item:

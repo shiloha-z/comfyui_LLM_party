@@ -353,12 +353,6 @@ class bing_loader:
 
 ddg_searchType = "web"
 
-# DuckDuckGo 直连不可达，requests 统一走本地代理 7897（Clash/mihomo）
-PROXIES = {
-    "http": "http://127.0.0.1:7897",
-    "https": "http://127.0.0.1:7897",
-}
-
 
 def search_duckduckgo(keywords, paper_num=1):
     if paper_num == "":
@@ -381,7 +375,7 @@ def search_duckduckgo(keywords, paper_num=1):
         else:
             params["ia"] = "web"
 
-        response = requests.get(base_url, params=params, proxies=PROXIES, timeout=10)
+        response = requests.get(base_url, params=params, timeout=10)
         print("Status code:", response.status_code)
         print("Response body:", response.text)
 
@@ -518,7 +512,6 @@ def search_web_tavily(keywords, paper_num=1):
             "https://api.tavily.com/search",
             json=payload,
             headers={"Content-Type": "application/json"},
-            proxies=PROXIES,
             timeout=15,
         )
         if resp.status_code != 200:
